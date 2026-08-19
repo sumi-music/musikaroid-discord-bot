@@ -30,7 +30,7 @@ function disableButtons(row, disabledLabel) {
   return rebuilt;
 }
 
-async function createOnboardingChannel(guild, userId) {
+async function createOnboardingChannel(guild, userId, client) {
   const seq = nextSeq(guild);
   const name = `所属手続きno${seq}`;
   const channel = await guild.channels.create({
@@ -41,6 +41,17 @@ async function createOnboardingChannel(guild, userId) {
       {
         id: guild.roles.everyone.id,
         deny: [PermissionsBitField.Flags.ViewChannel],
+      },
+      {
+        // Bot 自身: @everyone deny の中でも作業できるように明示 allow
+        id: client.user.id,
+        allow: [
+          PermissionsBitField.Flags.ViewChannel,
+          PermissionsBitField.Flags.SendMessages,
+          PermissionsBitField.Flags.ManageMessages,
+          PermissionsBitField.Flags.ManageThreads,
+          PermissionsBitField.Flags.ReadMessageHistory,
+        ],
       },
       {
         id: env.FOUNDER_ROLE_ID,
@@ -121,7 +132,7 @@ export async function handleButton(interaction) {
 
   try {
     const applicant = await guild.members.fetch(userId);
-    const channel = await createOnboardingChannel(guild, userId);
+    const channel = await createOnboardingChannel(guild, userId, interaction.client);
 
     await interaction.followUp({
       content: `✅ プライベートチャンネルを作成しました → <#${channel.id}>`,
