@@ -1,0 +1,19 @@
+{
+  "name": "musikaroid-discord-bot",
+  "version": "1.0.0",
+  "description": "Onboarding automation for Musikaroid Records Discord server",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "register": "node scripts/register-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  }
+}
