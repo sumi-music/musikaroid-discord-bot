@@ -47,8 +47,7 @@ async function createOnboardingChannel(guild, userId) {
         allow: [
           PermissionsBitField.Flags.ViewChannel,
           PermissionsBitField.Flags.SendMessages,
-          PermissionsBitField.Flags.ManageMessages,
-          PermissionsBitField.Flags.ManageThreads,
+          PermissionsBitField.Flags.ReadMessageHistory,
         ],
       },
       {
