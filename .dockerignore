@@ -1,0 +1,14 @@
+.git
+.gitignore
+node_modules
+npm-debug.log*
+.env
+.env.local
+.env.example
+*.log
+.DS_Store
+README.md
+LICENSE
+railway.json
+fly.toml
+scripts/register-commands.js

@@ -57,11 +57,45 @@ npm run register
 ```
 Guild スコープなので即反映。
 
-### 5. Railway デプロイ
-1. Railway で「New Project → Deploy from GitHub Repo」→ 本 repo を選択
-2. Variables タブで上記 env vars を全部貼る
-3. 自動デプロイ、`npm start` で起動（`railway.json` に定義済）
-4. 起動ログに `ready as ...#0` が出れば OK
+### 5. デプロイ (Fly.io 推奨)
+
+Bot は HTTP を持たない常駐プロセス。Fly.io の `shared-cpu-1x` / 256MB (無料枠) で常時起動。
+`fly.toml` と `Dockerfile` は同梱済。
+
+```bash
+# ① flyctl インストール (未導入なら)
+curl -L https://fly.io/install.sh | sh
+
+# ② ログイン
+fly auth login
+
+# ③ リポジトリを clone (or 既に clone 済ならその中で)
+git clone https://github.com/sumi-music/musikaroid-discord-bot
+cd musikaroid-discord-bot
+
+# ④ アプリ作成 (同梱の fly.toml を採用、デプロイはまだしない)
+fly launch --copy-config --no-deploy --name musikaroid-discord-bot --region nrt
+
+# ⑤ シークレット (7つの env vars) をまとめて登録
+fly secrets set \
+  DISCORD_TOKEN='...' \
+  DISCORD_CLIENT_ID='...' \
+  GUILD_ID='...' \
+  FOUNDER_ROLE_ID='...' \
+  ARTIST_ROLE_ID='...' \
+  FOUNDER_USER_ID='...' \
+  ONBOARDING_CATEGORY_ID='...'
+
+# ⑥ デプロイ
+fly deploy
+
+# ⑦ ログ確認 (Ctrl+C で抜ける)
+fly logs
+```
+
+起動ログに `ready as ...` が出れば OK。以後、`git push` 後に `fly deploy` を実行して反映。
+
+**代替: Railway** — `railway.json` も同梱してあります。Railway ダッシュボードで GitHub Repo 連携 → Variables に env vars を貼るだけで動きます (今回は OAuth 不調により選外)。
 
 ### 6. Layer 1（コマンド可視性）を Founder が設定
 Discord サーバーの設定 → Integrations → Bot → `/join` の権限を **`#はじめに` チャンネルのみ許可** に変更。他チャンネルではコマンド一覧に出なくなる。

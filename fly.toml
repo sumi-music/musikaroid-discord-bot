@@ -1,0 +1,19 @@
+# fly.toml — Musikaroid Records Discord Bot
+# Bot は HTTP を持たない常駐プロセス。services セクションはなし。
+# 常時稼働のため auto_stop/auto_start はデフォルトのまま (常駐)。
+
+app = "musikaroid-discord-bot"
+primary_region = "nrt"   # Tokyo — 日本ユーザー向けに近い
+
+[build]
+  # Dockerfile を使う (nixpacks より軽量・明示的)
+
+[env]
+  NODE_ENV = "production"
+  TZ = "Asia/Tokyo"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
