@@ -3,8 +3,10 @@ import { env } from './config.js';
 import * as joinCmd from './commands/join.js';
 import { handleButton } from './handlers/approval.js';
 
+// GuildMembers は Privileged Intent なので外す。/join は interaction.member (payload) と
+// guild.members.fetch() (REST) で動作するので Guilds のみで十分。
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.DirectMessages],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
   partials: [Partials.Channel],
 });
 
