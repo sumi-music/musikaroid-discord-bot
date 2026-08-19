@@ -28,33 +28,26 @@ function findExistingChannel(guild, userId) {
 }
 
 export async function execute(interaction) {
+  // Discord は interaction に 3 秒で最初の応答を要求する。以降の処理は defer 後に。
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
   const member = interaction.member;
 
   // 第2層: ロール ガード
   if (member.roles.cache.has(env.FOUNDER_ROLE_ID)) {
-    return interaction.reply({
-      content: '既に Founder です。/join は不要です。',
-      flags: MessageFlags.Ephemeral,
-    });
+    return interaction.editReply({ content: '既に Founder です。/join は不要です。' });
   }
   if (member.roles.cache.has(env.ARTIST_ROLE_ID)) {
-    return interaction.reply({
-      content: '既に所属済みです。手続きが必要な場合は Founder までご連絡ください。',
-      flags: MessageFlags.Ephemeral,
-    });
+    return interaction.editReply({ content: '既に所属済みです。手続きが必要な場合は Founder までご連絡ください。' });
   }
 
   // 既存チャンネルの重複ガード
   const existing = findExistingChannel(interaction.guild, interaction.user.id);
   if (existing) {
-    return interaction.reply({
-      content: `既に手続きチャンネルがあります → <#${existing.id}>`,
-      flags: MessageFlags.Ephemeral,
-    });
+    return interaction.editReply({ content: `既に手続きチャンネルがあります → <#${existing.id}>` });
   }
 
   // 第3層: Founder 承認制
-  const founder = await interaction.client.users.fetch(env.FOUNDER_USER_ID);
   const buttons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(`join:approve:${interaction.user.id}`)
@@ -67,6 +60,7 @@ export async function execute(interaction) {
   );
 
   try {
+    const founder = await interaction.client.users.fetch(env.FOUNDER_USER_ID);
     await founder.send({
       content:
         `**${interaction.user.tag}** (\`${interaction.user.id}\`) が \`/join\` を実行しました。\n` +
@@ -75,14 +69,10 @@ export async function execute(interaction) {
     });
   } catch (err) {
     console.error('failed to DM founder:', err);
-    return interaction.reply({
-      content: '一時的なエラーで受付できませんでした。時間をおいて再度お試しください。',
-      flags: MessageFlags.Ephemeral,
+    return interaction.editReply({
+      content: '一時的なエラーで受付できませんでした。時間をおいて再度お試しください。 (Founder が DM を受け取れる設定か確認してください)',
     });
   }
 
-  return interaction.reply({
-    content: '申請を受け付けました。Founder 確認後にご案内します。',
-    flags: MessageFlags.Ephemeral,
-  });
+  return interaction.editReply({ content: '申請を受け付けました。Founder 確認後にご案内します。' });
 }
